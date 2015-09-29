@@ -171,9 +171,9 @@ Point Curve::useHermiteCurve(const unsigned int nextPoint, const float time)
 	float _h2 = h2(normalTime);
 	float _h3 = h3(normalTime);
 	float _h4 = h4(normalTime);
-	newPosition.x = p0.x * _h1 + p1.x * _h2 + v0.x * _h3 + v1.x * _h4;
-	newPosition.y = p0.y * _h1 + p1.y * _h2 + v0.y * _h3 + v1.y * _h4;
-	newPosition.z = p0.z * _h1 + p1.z * _h2 + v0.z * _h3 + v1.z * _h4;
+	newPosition.x = p0.x * _h1 + p1.x * _h2 + v0.x * _h3 * (p1.x - p0.x) + v1.x * _h4 * (p1.x - p0.x);
+	newPosition.y = p0.y * _h1 + p1.y * _h2 + v0.y * _h3 * (p1.y - p0.y) + v1.y * _h4 * (p1.y - p0.y);;
+	newPosition.z = p0.z * _h1 + p1.z * _h2 + v0.z * _h3 * (p1.z - p0.z) + v1.z * _h4 * (p1.z - p0.z);
 	// Return result
 	return newPosition;
 }
