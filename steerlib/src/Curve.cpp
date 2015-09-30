@@ -48,10 +48,19 @@ void Curve::drawCurve(Color curveColor, float curveThickness, int window)
 	if (!checkRobust()) return;
 
 	// Move on the curve from t=0 to t=finalPoint, using window as step size, and linearly interpolate the curve points
-	for (int i = 0; i < controlPoints.size() - 1; ++i) {
-		DrawLib::drawLine(controlPoints[i].position, controlPoints[i+1].position, curveColor, curveThickness);
+	float time = 0;
+	float end = controlPoints[controlPoints.size() - 1].time;
+	Point startPoint = controlPoints[0].position;
+	Point endPoint;
+	while (time < end) {
+		if (calculatePoint(endPoint, time)) { 
+			DrawLib::drawLine(startPoint, endPoint, curveColor, curveThickness);
+			startPoint = endPoint;
+		} else {
+			std::cerr<<"Failed to find next Point at time " << time << std::endl;
+		}
+		time += window;
 	}
-
 
 	return;
 #endif
