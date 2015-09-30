@@ -206,32 +206,67 @@ float c3 (float t, float p0, float p1, float p2, float p3) {
 
 
 float calculateCoordinate(float u, float t, float p0, float p1, float p2, float p3) {
-	return c0(t, p0, p1, p2, p3) + c1(t, p0, p1, p2, p3) * u + c2(t, p0, p1, p2, p3) * u * u + c3(t, p0, p1, p2, p3);
+	return c0(t, p0, p1, p2, p3) + c1(t, p0, p1, p2, p3) * u + c2(t, p0, p1, p2, p3) * u * u + c3(t, p0, p1, p2, p3) * u * u * u;
 }
 
+Point useHermiteCurveWithTangents(std::vector<CurvePoint> controlPoints, const unsigned int nextPoint, const float time, Vector tangent0, Vector tangent1)
+{
+	Point newPosition;
+	float normalTime, intervalTime;
+
+	//=========================================================================
+
+	if (nextPoint == 0) {
+		newPosition = controlPoints[nextPoint].position;
+		return newPosition;
+	}
+	// Calculate time interval, and normal time required for later curve calculations
+	intervalTime = controlPoints[nextPoint].time - controlPoints[nextPoint - 1].time;
+	normalTime = (time - controlPoints[nextPoint - 1].time) / intervalTime;
+	// Calculate position at t = time on Hermite curve
+	Point p0 = controlPoints[nextPoint - 1].position;
+	Point p1 = controlPoints[nextPoint].position;
+	Vector v0 = tangent0;
+	Vector v1 = tangent1;
+	float _h1 = h1(normalTime);
+	float _h2 = h2(normalTime);
+	float _h3 = h3(normalTime);
+	float _h4 = h4(normalTime);
+	newPosition.x = p0.x * _h1 + p1.x * _h2 + v0.x * _h3 + v1.x * _h4;
+	newPosition.y = p0.y * _h1 + p1.y * _h2 + v0.y * _h3 + v1.y * _h4;
+	newPosition.z = p0.z * _h1 + p1.z * _h2 + v0.z * _h3 + v1.z * _h4;
+	// Return result
+	return newPosition;
+}
 // Implement Catmull-Rom curve
 Point Curve::useCatmullCurve(const unsigned int nextPoint, const float time)
 {
 	Point newPosition;
+	int points_size = controlPoints.size();
 	float tension = 0.5;
-	if (nextPoint <= 1 || nextPoint >= controlPoints.size() - 1) {
-		newPosition = useHermiteCurve(nextPoint, time);
+	if (nextPoint <= 1 || nextPoint >= points_size - 1) {
+		if (nextPoint <= 1) {
+			newPosition = useHermiteCurveWithTangents(controlPoints, nextPoint, time, controlPoints[0].tangent, tension * (controlPoints[2].position - controlPoints[0].position));
+		} else {
+			newPosition = useHermiteCurveWithTangents(controlPoints, nextPoint, time,  tension * (controlPoints[points_size - 1].position - controlPoints[points_size - 3].position), controlPoints[points_size - 1].tangent);
+		}
 		return newPosition;
 	}
 
 
 	// Calculate time interval, and normal time required for later curve calculations
 
-	//float intervalTime = controlPoints[nextPoint].time - controlPoints[nextPoint - 1].time;
+	float intervalTime = controlPoints[nextPoint].time - controlPoints[nextPoint - 1].time;
+	float normalTime = (time - controlPoints[nextPoint - 1].time) / intervalTime;
 	// Calculate position at t = time on Catmull-Rom curve
 	Point p0 = controlPoints[nextPoint - 2].position;
 	Point p1 = controlPoints[nextPoint - 1].position;
 	Point p2 = controlPoints[nextPoint].position;
 	Point p3 = controlPoints[nextPoint + 1].position;
 
-	newPosition.x = calculateCoordinate(time, tension, p0.x, p1.x, p2.x, p3.x);
-	newPosition.y = calculateCoordinate(time, tension, p0.y, p1.y, p2.y, p3.y);
-	newPosition.z = calculateCoordinate(time, tension, p0.z, p1.z, p2.z, p3.z);
+	newPosition.x = calculateCoordinate(normalTime, tension, p0.x, p1.x, p2.x, p3.x);
+	newPosition.y = calculateCoordinate(normalTime, tension, p0.y, p1.y, p2.y, p3.y);
+	newPosition.z = calculateCoordinate(normalTime, tension, p0.z, p1.z, p2.z, p3.z);
 	// Return result
 	return newPosition;
 }
