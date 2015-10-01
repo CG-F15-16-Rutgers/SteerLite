@@ -52,7 +52,7 @@ void Curve::drawCurve(Color curveColor, float curveThickness, int window)
 	float end = controlPoints[controlPoints.size() - 1].time;
 	Point startPoint = controlPoints[0].position;
 	Point endPoint;
-	float timeWindow = 0.5;
+/*	float timeWindow = 0.5;
 	while (time <= end) {
 		if (calculatePoint(endPoint, time)) { 
 			DrawLib::drawLine(startPoint, endPoint, curveColor, curveThickness);
@@ -62,7 +62,7 @@ void Curve::drawCurve(Color curveColor, float curveThickness, int window)
 		}
 		time += timeWindow;
 	}
-
+*/
 	return;
 #endif
 }
@@ -238,35 +238,114 @@ Point useHermiteCurveWithTangents(std::vector<CurvePoint> controlPoints, const u
 	// Return result
 	return newPosition;
 }
+
+float calculateDerivative(float t0, float t1, float t2, float p0, float p1, float p2) {
+	return ((t1-t0)/(t2-t0)) * ((p2-p1)/(t2-t1)) + ((t2-t1)/(t2-t0)) * ((p1-p0)/(t1-t0));
+}
+
+Vector calculatePointDerivative(float t0, float t1, float t2, Point p0, Point p1, Point p2) {
+	Vector s;
+	s.x = calculateDerivative(t0, t1, t2, p0.x, p1.x, p2.x); 
+	s.y = calculateDerivative(t0, t1, t2, p0.y, p1.y, p2.y); 
+	s.z = calculateDerivative(t0, t1, t2, p0.z, p1.z, p2.z); 
+	return s;
+}	
+
+float calculateDerivativeAtBoundary(float t0, float t1, float t2, float p0, float p1, float p2) {
+	return ((t2-t0)/(t2-t1)) * ((p1-p0)/(t1-t0)) + ((t1-t0)/(t2-t1)) * ((p2-p0)/(t2-t0));
+}
+
+Vector calculatePointDerivativeAtBoundary(float t0, float t1, float t2, Point p0, Point p1, Point p2) {
+	Vector s;
+	s.x = calculateDerivativeAtBoundary(t0, t1, t2, p0.x, p1.x, p2.x); 
+	s.y = calculateDerivativeAtBoundary(t0, t1, t2, p0.y, p1.y, p2.y); 
+	s.z = calculateDerivativeAtBoundary(t0, t1, t2, p0.z, p1.z, p2.z); 
+	return s;
+}
+
+float _c0(float p1) {
+	return p1;
+}
+float _c1(float s1) {
+	return s1;
+}
+float _c2(float p1, float p2, float s1, float s2) {
+	return 3*p2 - 3*p1 - s2 - 2*s1;
+}
+float _c3(float p1, float p2, float s1, float s2) {
+	return s2 + s1 - 2*(p2-p1);
+}
+
+float calculateNewCoordinate(float t, float p1, float p2, float s1, float s2) {
+	return _c0(p1) + _c1(s1) * t +  _c2(p1, p2, s1, s2) * t * t + _c3(p1, p2, s1, s2) * t * t * t;
+}
+
+Point calculateNewPosition(float t, Point p1, Point p2, Vector s1, Vector s2) {
+	Point newPoint;
+	newPoint.x = calculateNewCoordinate(t, p1.x, p2.x, s1.x, s2.x);
+	newPoint.y = calculateNewCoordinate(t, p1.y, p2.y, s1.y, s2.y);
+	newPoint.z = calculateNewCoordinate(t, p1.z, p2.z, s1.z, s2.z);	       return newPoint;		
+}	
 // Implement Catmull-Rom curve
 Point Curve::useCatmullCurve(const unsigned int nextPoint, const float time)
 {
 	Point newPosition;
 	int points_size = controlPoints.size();
-	float tension = 0.5;
-	if (nextPoint <= 1 || nextPoint >= points_size - 1) {
-		if (nextPoint <= 1) {
-			newPosition = useHermiteCurveWithTangents(controlPoints, nextPoint, time, controlPoints[0].tangent, tension * (controlPoints[2].position - controlPoints[0].position));
-		} else {
-			newPosition = useHermiteCurveWithTangents(controlPoints, nextPoint, time,  tension * (controlPoints[points_size - 1].position - controlPoints[points_size - 3].position), controlPoints[points_size - 1].tangent);
-		}
-		return newPosition;
-	}
+//	std::cout << "nextPoint = " << nextPoint << std::endl;
+	if (nextPoint == 0)
+		return controlPoints[0].position;
+//	float tension = 0.5;
+//	if (nextPoint <= 1 || nextPoint >= points_size - 1) {
+//		if (nextPoint <= 1) {
+//			newPosition = useHermiteCurveWithTangents(controlPoints, nextPoint, time, controlPoints[0].tangent, tension * (controlPoints[2].position - controlPoints[0].position));
+//		} else {
+//			newPosition = useHermiteCurveWithTangents(controlPoints, nextPoint, time,  tension * (controlPoints[points_size - 1].position - controlPoints[points_size - 3].position), controlPoints[points_size - 1].tangent);
+//		}
+//		return newPosition;
+//	}
 
 
 	// Calculate time interval, and normal time required for later curve calculations
-
 	float intervalTime = controlPoints[nextPoint].time - controlPoints[nextPoint - 1].time;
 	float normalTime = (time - controlPoints[nextPoint - 1].time) / intervalTime;
 	// Calculate position at t = time on Catmull-Rom curve
-	Point p0 = controlPoints[nextPoint - 2].position;
-	Point p1 = controlPoints[nextPoint - 1].position;
-	Point p2 = controlPoints[nextPoint].position;
-	Point p3 = controlPoints[nextPoint + 1].position;
+	if (nextPoint == 1) {
+		Point p0 = controlPoints[nextPoint - 1].position;
+		Point p1 = controlPoints[nextPoint    ].position;
+		Point p2 = controlPoints[nextPoint + 1].position;
+		float t0 = controlPoints[nextPoint - 1].time;
+		float t1 = controlPoints[nextPoint - 0].time;
+		float t2 = controlPoints[nextPoint + 1].time;
+		Vector s0 = calculatePointDerivativeAtBoundary(t0, t1, t2, p0, p1, p2);
+		Vector s1 = calculatePointDerivative(t0, t1, t2, p0, p1, p2);
+//		std::cout << "s0 = " << s0 << " s1 = " << s1 << std::endl;
+		newPosition = calculateNewPosition(normalTime, p0, p1, s0, s1);
+		
+	} else if (nextPoint == (points_size - 1)) {
+		Point p0 = controlPoints[nextPoint - 2].position;
+		Point p1 = controlPoints[nextPoint - 1].position;
+		Point p2 = controlPoints[nextPoint + 0].position;
+		float t0 = controlPoints[nextPoint - 2].time;
+		float t1 = controlPoints[nextPoint - 1].time;
+		float t2 = controlPoints[nextPoint + 0].time;
+		Vector s1 = calculatePointDerivative(t0, t1, t2, p0, p1, p2);
+		Vector s2 = calculatePointDerivativeAtBoundary(t2, t1, t0, p2, p1, p0);
+//		std::cout << "s_n-1 = " << s1 << " s_n = " << s2 << std::endl;
+		newPosition = calculateNewPosition(normalTime, p1, p2, s1, s2);
 
-	newPosition.x = calculateCoordinate(normalTime, tension, p0.x, p1.x, p2.x, p3.x);
-	newPosition.y = calculateCoordinate(normalTime, tension, p0.y, p1.y, p2.y, p3.y);
-	newPosition.z = calculateCoordinate(normalTime, tension, p0.z, p1.z, p2.z, p3.z);
-	// Return result
+	} else {
+		Point p0 = controlPoints[nextPoint - 2].position;
+		Point p1 = controlPoints[nextPoint - 1].position;
+		Point p2 = controlPoints[nextPoint    ].position;
+		Point p3 = controlPoints[nextPoint + 1].position;
+		float t0 = controlPoints[nextPoint - 2].time;
+		float t1 = controlPoints[nextPoint - 1].time;
+		float t2 = controlPoints[nextPoint - 0].time;
+		float t3 = controlPoints[nextPoint + 1].time;
+		Vector s1 = calculatePointDerivative(t0, t1, t2, p0, p1, p2);
+		Vector s2 = calculatePointDerivative(t1, t2, t3, p1, p2, p3);
+//		std::cout << "s1 = " << s1 << " s2 = " << s2 << std::endl;
+		newPosition = calculateNewPosition(normalTime, p1, p2, s1, s2);
+	}
 	return newPosition;
 }
