@@ -11,6 +11,7 @@
 #include <util/Color.h>
 #include <util/DrawLib.h>
 #include "Globals.h"
+#include <cmath>
 
 using namespace Util;
 
@@ -52,7 +53,7 @@ void Curve::drawCurve(Color curveColor, float curveThickness, int window)
 	float end = controlPoints[controlPoints.size() - 1].time;
 	Point startPoint = controlPoints[0].position;
 	Point endPoint;
-/*	float timeWindow = 0.5;
+	float timeWindow = 0.5;
 	while (time <= end) {
 		if (calculatePoint(endPoint, time)) { 
 			DrawLib::drawLine(startPoint, endPoint, curveColor, curveThickness);
@@ -62,7 +63,7 @@ void Curve::drawCurve(Color curveColor, float curveThickness, int window)
 		}
 		time += timeWindow;
 	}
-*/
+
 	return;
 #endif
 }
@@ -157,6 +158,14 @@ float h4 (float t) {
 	return (t * t * t - t * t);
 } 
 
+float dist (Point p0, Point p1){
+	float diffx = pow((p0.x - p1.x), 2);
+	float diffy = pow((p0.y - p1.y), 2);
+	float diffz = pow((p0.z - p1.z), 2);
+
+	return sqrt(diffx + diffy + diffz);
+}
+
 // Implement Hermite curve
 Point Curve::useHermiteCurve(const unsigned int nextPoint, const float time)
 {
@@ -181,9 +190,11 @@ Point Curve::useHermiteCurve(const unsigned int nextPoint, const float time)
 	float _h2 = h2(normalTime);
 	float _h3 = h3(normalTime);
 	float _h4 = h4(normalTime);
-	newPosition.x = p0.x * _h1 + p1.x * _h2 + v0.x * _h3 + v1.x * _h4;
-	newPosition.y = p0.y * _h1 + p1.y * _h2 + v0.y * _h3 + v1.y * _h4;
-	newPosition.z = p0.z * _h1 + p1.z * _h2 + v0.z * _h3 + v1.z * _h4;
+	float _dist = dist(p0, p1);
+
+	newPosition.x = p0.x * _h1 + p1.x * _h2 + v0.x * _h3 * _dist + v1.x * _h4 * _dist;
+	newPosition.y = p0.y * _h1 + p1.y * _h2 + v0.y * _h3 * _dist + v1.y * _h4 * _dist;
+	newPosition.z = p0.z * _h1 + p1.z * _h2 + v0.z * _h3 * _dist + v1.z * _h4 * _dist;
 	// Return result
 	return newPosition;
 }
