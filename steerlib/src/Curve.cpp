@@ -76,14 +76,26 @@ bool compareFunction(CurvePoint cp1, CurvePoint cp2) {
 void Curve::sortControlPoints()
 {
 
-	for(std::vector<CurvePoint>::iterator it = controlPoints.begin(); it < controlPoints.end(); ++it) {
+	//for(std::vector<CurvePoint>::iterator it = controlPoints.begin(); it < controlPoints.end(); ++it) {
+	//	std::cout << it->time << std::endl;
+	//}
+
+	std::sort(controlPoints.begin(), controlPoints.end(), compareFunction);
+	//for(std::vector<CurvePoint>::iterator it = controlPoints.begin(); it < controlPoints.end(); ++it) {
+	//	std::cout << it->time << std::endl;
+	//}
+	for(std::vector<CurvePoint>::iterator it = controlPoints.begin(); it < controlPoints.end() - 1; ++it) {
+		if(it->time == (it + 1)->time)
+		{
+			//if(it == (controlPoints.end() - 1)); 
+			controlPoints.erase(it + 1); 
+			--it;  
+		}
+	}
+	for(std::vector<CurvePoint>::iterator it = controlPoints.begin(); it <= controlPoints.end(); ++it) {
 		std::cout << it->time << std::endl;
 	}
 
-	std::sort(controlPoints.begin(), controlPoints.end(), compareFunction);
-	for(std::vector<CurvePoint>::iterator it = controlPoints.begin(); it < controlPoints.end(); ++it) {
-		std::cout << it->time << std::endl;
-	}
 }
 
 // Calculate the position on curve corresponding to the given time, outputPoint is the resulting position
@@ -265,7 +277,7 @@ Vector calculatePointDerivative(float t0, float t1, float t2, Point p0, Point p1
 }	
 
 float calculateDerivativeAtBoundary(float t0, float t1, float t2, float p0, float p1, float p2) {
-	return ((t2-t0)/(t2-t1)) * ((p1-p0)/(t1-t0)) + ((t1-t0)/(t2-t1)) * ((p2-p0)/(t2-t0));
+	return ((t2-t0)/(t2-t1)) * ((p1-p0)/(t1-t0)) - ((t1-t0)/(t2-t1)) * ((p2-p0)/(t2-t0));
 }
 
 Vector calculatePointDerivativeAtBoundary(float t0, float t1, float t2, Point p0, Point p1, Point p2) {
