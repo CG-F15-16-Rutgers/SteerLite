@@ -158,6 +158,7 @@ float h4 (float t) {
 	return (t * t * t - t * t);
 } 
 
+/*
 float dist (Point p0, Point p1){
 	float diffx = pow((p0.x - p1.x), 2);
 	float diffy = pow((p0.y - p1.y), 2);
@@ -165,6 +166,7 @@ float dist (Point p0, Point p1){
 
 	return sqrt(diffx + diffy + diffz);
 }
+*/
 
 // Implement Hermite curve
 Point Curve::useHermiteCurve(const unsigned int nextPoint, const float time)
@@ -190,11 +192,11 @@ Point Curve::useHermiteCurve(const unsigned int nextPoint, const float time)
 	float _h2 = h2(normalTime);
 	float _h3 = h3(normalTime);
 	float _h4 = h4(normalTime);
-	float _dist = dist(p0, p1);
+//	float _dist = dist(p0, p1);
 
-	newPosition.x = p0.x * _h1 + p1.x * _h2 + v0.x * _h3 * _dist + v1.x * _h4 * _dist;
-	newPosition.y = p0.y * _h1 + p1.y * _h2 + v0.y * _h3 * _dist + v1.y * _h4 * _dist;
-	newPosition.z = p0.z * _h1 + p1.z * _h2 + v0.z * _h3 * _dist + v1.z * _h4 * _dist;
+	newPosition.x = p0.x * _h1 + p1.x * _h2 + v0.x * _h3 * intervalTime + v1.x * _h4 * intervalTime;
+	newPosition.y = p0.y * _h1 + p1.y * _h2 + v0.y * _h3 * intervalTime + v1.y * _h4 * intervalTime;
+	newPosition.z = p0.z * _h1 + p1.z * _h2 + v0.z * _h3 * intervalTime + v1.z * _h4 * intervalTime;
 	// Return result
 	return newPosition;
 }
@@ -291,11 +293,13 @@ float calculateNewCoordinate(float t, float p1, float p2, float s1, float s2) {
 	return _c0(p1) + _c1(s1) * t +  _c2(p1, p2, s1, s2) * t * t + _c3(p1, p2, s1, s2) * t * t * t;
 }
 
-Point calculateNewPosition(float t, Point p1, Point p2, Vector s1, Vector s2) {
+Point calculateNewPosition(float t, float interval, Point p1, Point p2, Vector s1, Vector s2) {
 	Point newPoint;
-	newPoint.x = calculateNewCoordinate(t, p1.x, p2.x, s1.x, s2.x);
-	newPoint.y = calculateNewCoordinate(t, p1.y, p2.y, s1.y, s2.y);
-	newPoint.z = calculateNewCoordinate(t, p1.z, p2.z, s1.z, s2.z);	       return newPoint;		
+
+	newPoint.x = calculateNewCoordinate(t, p1.x, p2.x, s1.x * interval, s2.x * interval);
+	newPoint.y = calculateNewCoordinate(t, p1.y, p2.y, s1.y * interval, s2.y * interval);
+	newPoint.z = calculateNewCoordinate(t, p1.z, p2.z, s1.z * interval, s2.z * interval);
+    return newPoint;		
 }	
 // Implement Catmull-Rom curve
 Point Curve::useCatmullCurve(const unsigned int nextPoint, const float time)
@@ -330,7 +334,7 @@ Point Curve::useCatmullCurve(const unsigned int nextPoint, const float time)
 		Vector s0 = calculatePointDerivativeAtBoundary(t0, t1, t2, p0, p1, p2);
 		Vector s1 = calculatePointDerivative(t0, t1, t2, p0, p1, p2);
 //		std::cout << "s0 = " << s0 << " s1 = " << s1 << std::endl;
-		newPosition = calculateNewPosition(normalTime, p0, p1, s0, s1);
+		newPosition = calculateNewPosition(normalTime, intervalTime, p0, p1, s0, s1);
 		
 	} else if (nextPoint == (points_size - 1)) {
 		Point p0 = controlPoints[nextPoint - 2].position;
@@ -342,7 +346,7 @@ Point Curve::useCatmullCurve(const unsigned int nextPoint, const float time)
 		Vector s1 = calculatePointDerivative(t0, t1, t2, p0, p1, p2);
 		Vector s2 = calculatePointDerivativeAtBoundary(t2, t1, t0, p2, p1, p0);
 //		std::cout << "s_n-1 = " << s1 << " s_n = " << s2 << std::endl;
-		newPosition = calculateNewPosition(normalTime, p1, p2, s1, s2);
+		newPosition = calculateNewPosition(normalTime, intervalTime, p1, p2, s1, s2);
 
 	} else {
 		Point p0 = controlPoints[nextPoint - 2].position;
@@ -356,7 +360,7 @@ Point Curve::useCatmullCurve(const unsigned int nextPoint, const float time)
 		Vector s1 = calculatePointDerivative(t0, t1, t2, p0, p1, p2);
 		Vector s2 = calculatePointDerivative(t1, t2, t3, p1, p2, p3);
 //		std::cout << "s1 = " << s1 << " s2 = " << s2 << std::endl;
-		newPosition = calculateNewPosition(normalTime, p1, p2, s1, s2);
+		newPosition = calculateNewPosition(normalTime, intervalTime, p1, p2, s1, s2);
 	}
 	return newPosition;
 }
