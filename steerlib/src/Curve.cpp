@@ -61,7 +61,7 @@ void Curve::drawCurve(Color curveColor, float curveThickness, int window)
 		} else {
 			std::cerr<<"Failed to find next Point at time " << time << std::endl;
 		}
-		time += timeWindow;
+		time += window;
 	}
 
 	return;
@@ -70,6 +70,10 @@ void Curve::drawCurve(Color curveColor, float curveThickness, int window)
 
 bool compareFunction(CurvePoint cp1, CurvePoint cp2) {
 	return (cp1.time < cp2.time);
+}
+
+bool compareSameTime(CurvePoint cp1, CurvePoint cp2) {
+	return (cp1.time == cp2.time);
 }
 
 // Sort controlPoints vector in ascending order: min-first
@@ -81,17 +85,18 @@ void Curve::sortControlPoints()
 	//}
 
 	std::sort(controlPoints.begin(), controlPoints.end(), compareFunction);
+	controlPoints.erase(std::unique(controlPoints.begin(), controlPoints.end(), compareSameTime), controlPoints.end());
 	//for(std::vector<CurvePoint>::iterator it = controlPoints.begin(); it < controlPoints.end(); ++it) {
 	//	std::cout << it->time << std::endl;
 	//}
-	for(std::vector<CurvePoint>::iterator it = controlPoints.begin(); it < controlPoints.end() - 1; ++it) {
-		if(it->time == (it + 1)->time)
-		{
-			//if(it == (controlPoints.end() - 1)); 
-			controlPoints.erase(it + 1); 
-			--it;  
-		}
-	}
+//	for(std::vector<CurvePoint>::iterator it = controlPoints.begin(); it < controlPoints.end() - 1; ++it) {
+//		if(it->time == (it + 1)->time)
+//		{
+//			//if(it == (controlPoints.end() - 1)); 
+//			controlPoints.erase(it + 1); 
+//			--it;  
+//		}
+//	}
 	for(std::vector<CurvePoint>::iterator it = controlPoints.begin(); it <= controlPoints.end(); ++it) {
 		std::cout << it->time << std::endl;
 	}
