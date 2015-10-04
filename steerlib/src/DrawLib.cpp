@@ -267,7 +267,7 @@ void DrawLib::drawAgentDisc(const Point & pos, const Vector & dir, float radius,
 		glColor(color);
 		glTranslate(sidePos);
 		glRotatef(rad,0.0f,1.0f,0.0f);
-		glScalef(radius, radius*4.0, radius);
+		glScalef(radius*2.0, radius*4.0, radius);
 
 		_drawDisplayList(_agentDisplayList);
 	}
@@ -280,7 +280,7 @@ void DrawLib::drawAgentDisc(const Point & pos, const Vector & dir, float radius,
 		glColor(color);
 		glTranslate(sidePos);
 		glRotatef(rad,0.0f,1.0f,0.0f);
-		glScalef(radius, radius*4.0, radius);
+		glScalef(radius*2.0, radius*4.0, radius);
 
 		_drawDisplayList(_agentDisplayList);
 	}
@@ -294,7 +294,7 @@ void DrawLib::drawAgentDisc(const Point & pos, const Vector & dir, float radius,
 		glColor(color);
 		glTranslate(sidePos);
 		glRotatef(rad,0.0f,1.0f,0.0f);
-		glScalef(radius, radius*4.0, radius);
+		glScalef(radius, radius*4.0, radius*2.0);
 
 		_drawDisplayList(_agentDisplayList);
 	}
@@ -307,7 +307,7 @@ void DrawLib::drawAgentDisc(const Point & pos, const Vector & dir, float radius,
 		glColor(color);
 		glTranslate(sidePos);
 		glRotatef(rad,0.0f,1.0f,0.0f);
-		glScalef(radius, radius*4.0, radius);
+		glScalef(radius, radius*4.0, radius*2.0);
 
 		_drawDisplayList(_agentDisplayList);
 	}
