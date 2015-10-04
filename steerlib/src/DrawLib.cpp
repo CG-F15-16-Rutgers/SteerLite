@@ -247,8 +247,8 @@ void DrawLib::drawCircle(const Point & loc, const Color& color, float scale, int
 void DrawLib::drawAgentDisc(const Point & pos, const Vector & dir, float radius, const Color& color)
 {
 	Point sidePos = pos; 
-
-	glPushMatrix();
+	float offset = 1.42 * radius; 
+	/*glPushMatrix();
 	{
 		float rad = atan2(dir.z, dir.x)*(-M_180_OVER_PI);
 		glColor(color);
@@ -258,9 +258,9 @@ void DrawLib::drawAgentDisc(const Point & pos, const Vector & dir, float radius,
 
 		_drawDisplayList(_agentDisplayList);
 	}
-	glPopMatrix();
+	glPopMatrix();*/
 
-	sidePos.x += radius; 
+	sidePos.x += offset; 
 	glPushMatrix();
 	{
 		float rad = atan2(dir.z, dir.x)*(-M_180_OVER_PI);
@@ -273,7 +273,7 @@ void DrawLib::drawAgentDisc(const Point & pos, const Vector & dir, float radius,
 	}
 	glPopMatrix();
 
-	sidePos.x -= radius*2; 
+	sidePos.x -= offset*2; 
 	glPushMatrix();
 	{
 		float rad = atan2(dir.z, dir.x)*(-M_180_OVER_PI);
@@ -286,8 +286,8 @@ void DrawLib::drawAgentDisc(const Point & pos, const Vector & dir, float radius,
 	}
 	glPopMatrix();
 
-	sidePos.x += radius;
-	sidePos.z += radius; 
+	sidePos.x += offset;
+	sidePos.z += offset; 
 	glPushMatrix();
 	{
 		float rad = atan2(dir.z, dir.x)*(-M_180_OVER_PI);
@@ -300,7 +300,7 @@ void DrawLib::drawAgentDisc(const Point & pos, const Vector & dir, float radius,
 	}
 	glPopMatrix();
 
-	sidePos.z -= radius*2; 
+	sidePos.z -= offset*2; 
 	glPushMatrix();
 	{
 		float rad = atan2(dir.z, dir.x)*(-M_180_OVER_PI);
@@ -313,8 +313,9 @@ void DrawLib::drawAgentDisc(const Point & pos, const Vector & dir, float radius,
 	}
 	glPopMatrix();
 
-	sidePos.z += radius; 
-	sidePos.y += radius; 
+	sidePos.z += offset; 
+	
+	sidePos.y += radius * 2.0; 
 	glPushMatrix();
 	{
 		float rad = atan2(dir.z, dir.x)*(-M_180_OVER_PI);
