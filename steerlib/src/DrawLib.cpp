@@ -224,6 +224,19 @@ void DrawLib::drawCircle(const Point & loc, const Color& color, float scale, int
 		nextTurningVector = rotateInXZPlane(turningVector, angleIncrement);
 
 	}
+
+	/*Point sideLoc = loc; 
+	sideLoc.x += 3; 
+
+	for (int i = 0; i < points; i++)
+	{
+
+		DrawLib::drawLine( sideLoc + turningVector, sideLoc + nextTurningVector, color);
+		turningVector = nextTurningVector;
+		nextTurningVector = rotateInXZPlane(turningVector, angleIncrement);
+
+	}*/
+
 }
 
 
@@ -233,6 +246,8 @@ void DrawLib::drawCircle(const Point & loc, const Color& color, float scale, int
 //
 void DrawLib::drawAgentDisc(const Point & pos, const Vector & dir, float radius, const Color& color)
 {
+	Point sidePos = pos; 
+
 	glPushMatrix();
 	{
 		float rad = atan2(dir.z, dir.x)*(-M_180_OVER_PI);
@@ -244,6 +259,76 @@ void DrawLib::drawAgentDisc(const Point & pos, const Vector & dir, float radius,
 		_drawDisplayList(_agentDisplayList);
 	}
 	glPopMatrix();
+
+	sidePos.x += radius; 
+	glPushMatrix();
+	{
+		float rad = atan2(dir.z, dir.x)*(-M_180_OVER_PI);
+		glColor(color);
+		glTranslate(sidePos);
+		glRotatef(rad,0.0f,1.0f,0.0f);
+		glScalef(radius, radius*4.0, radius);
+
+		_drawDisplayList(_agentDisplayList);
+	}
+	glPopMatrix();
+
+	sidePos.x -= radius*2; 
+	glPushMatrix();
+	{
+		float rad = atan2(dir.z, dir.x)*(-M_180_OVER_PI);
+		glColor(color);
+		glTranslate(sidePos);
+		glRotatef(rad,0.0f,1.0f,0.0f);
+		glScalef(radius, radius*4.0, radius);
+
+		_drawDisplayList(_agentDisplayList);
+	}
+	glPopMatrix();
+
+	sidePos.x += radius;
+	sidePos.z += radius; 
+	glPushMatrix();
+	{
+		float rad = atan2(dir.z, dir.x)*(-M_180_OVER_PI);
+		glColor(color);
+		glTranslate(sidePos);
+		glRotatef(rad,0.0f,1.0f,0.0f);
+		glScalef(radius, radius*4.0, radius);
+
+		_drawDisplayList(_agentDisplayList);
+	}
+	glPopMatrix();
+
+	sidePos.z -= radius*2; 
+	glPushMatrix();
+	{
+		float rad = atan2(dir.z, dir.x)*(-M_180_OVER_PI);
+		glColor(color);
+		glTranslate(sidePos);
+		glRotatef(rad,0.0f,1.0f,0.0f);
+		glScalef(radius, radius*4.0, radius);
+
+		_drawDisplayList(_agentDisplayList);
+	}
+	glPopMatrix();
+
+	sidePos.z += radius; 
+	sidePos.y += radius; 
+	glPushMatrix();
+	{
+		float rad = atan2(dir.z, dir.x)*(-M_180_OVER_PI);
+		glColor(color);
+		glTranslate(sidePos);
+		glRotatef(rad,0.0f,1.0f,0.0f);
+		glScalef(radius, radius*4.0, radius);
+
+		_drawDisplayList(_agentDisplayList);
+	}
+	glPopMatrix();
+
+
+
 }
 
 //
@@ -251,6 +336,7 @@ void DrawLib::drawAgentDisc(const Point & pos, const Vector & dir, float radius,
 //
 void DrawLib::drawAgentDisc(const Point & pos, float radius, const Color& color)
 {
+	
 	glPushMatrix();
 	{
 		glColor(color);
@@ -260,6 +346,7 @@ void DrawLib::drawAgentDisc(const Point & pos, float radius, const Color& color)
 		_drawDisplayList(_agentDotDisplayList);
 	}
 	glPopMatrix();
+
 }
 
 //
