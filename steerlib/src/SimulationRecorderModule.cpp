@@ -46,6 +46,8 @@ void SimulationRecorderModule::preprocessSimulation() {
 	// note, these are aliases (using the &)
 	const std::vector<SteerLib::AgentInterface*> & agents = _engine->getAgents();
 	const std::set<SteerLib::ObstacleInterface*> & obstacles = _engine->getObstacles();
+	//mycode
+	const SteerLib::Camera &camera = _engine->getCamera();
 
 	// if the simulation is reading a usual test case, then this filename is stored in 
 	// the recfile so that initial conditions can be validated.
@@ -59,6 +61,9 @@ void SimulationRecorderModule::preprocessSimulation() {
 	for (obstacleIter = obstacles.begin(); obstacleIter != obstacles.end(); ++obstacleIter) {
 		_simulationWriter->addObstacleBoundingBox((*obstacleIter)->getBounds());
 	}
+
+	//add camera
+	_simulationWriter->addCameraView(camera.position(), camera.lookat());
 
 	// Technically, the number of frames is one more than the number of simulation steps taken.
 	// here, write the zero-th frame, which represents initial conditions.
@@ -97,8 +102,10 @@ void SimulationRecorderModule::postprocessFrame(float timeStamp, float dt, unsig
 	// note, this is an alias (using the &)
 	const std::vector<SteerLib::AgentInterface *>  & agents = _engine->getAgents();
 
+	const SteerLib::Camera &camera = _engine->getCamera();
 	//std::cout << " coming here \n";
 
+	_simulationWriter->addCameraView(camera.position(), camera.lookat());
 	_simulationWriter->startFrame(_engine->getClock().getCurrentSimulationTime(), dt);
 	for (unsigned int i=0; i<agents.size(); i++) {
 		// These values must be strictly initialized, just in case the agent is not enabled.
