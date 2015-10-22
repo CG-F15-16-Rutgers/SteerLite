@@ -149,6 +149,21 @@ void RecFilePlayerModule::initializeSimulation()
 		_engine->getSpatialDatabase()->addObject( dynamic_cast<SpatialDatabaseItemPtr>(agent), newBounds);
 	}
 
+	
+	Camera &engineCamera = _engine->getCamera();
+	std::vector<Util::CurvePoint> controlPoints;
+	std::vector<SteerLib::CameraView> cameraViews = _simulationReader->getCameraViews();
+	Util::Vector startTangent(0.f, 0.f, 0.f);
+
+	if ( cameraViews.size() != 0 )
+		_engine->setCameraViewTestCase( cameraViews.front() );
+
+	for (int i = 0; i < cameraViews.size(); i++)
+		controlPoints.push_back(Util::CurvePoint(cameraViews[i].position, cameraViews[i].targetTangent, cameraViews[i].targetTime));
+	controlPoints.push_back(Util::CurvePoint(engineCamera.position(), startTangent, 0.f));
+
+	engineCamera.addControlPoints(controlPoints);
+
 }
 
 void RecFilePlayerModule::cleanupSimulation()

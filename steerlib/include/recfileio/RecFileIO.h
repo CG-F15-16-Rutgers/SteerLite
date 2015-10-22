@@ -106,6 +106,7 @@ namespace SteerLib {
 		unsigned int getNumCameraViews();
 		/// Returns parameters of the particular camera view indexed by cameraIndex.
 		void getCameraView( unsigned int cameraIndex, float &origx, float &origy, float &origz, float &lookatx, float &lookaty, float &lookatz);
+		inline getCameraViews();
 		/// Returns the time stamp for a particular frame.
 		float getTimeStampForFrame( unsigned int frameNumber );
 		/// Returns the total time elapsed between the first and last frames of the rec file.
