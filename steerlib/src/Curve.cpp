@@ -79,7 +79,7 @@ bool compareSameTime(CurvePoint cp1, CurvePoint cp2) {
 // Sort controlPoints vector in ascending order: min-first
 void Curve::sortControlPoints()
 {
-<<<<<<< HEAD
+
 
 	//for(std::vector<CurvePoint>::iterator it = controlPoints.begin(); it < controlPoints.end(); ++it) {
 	//	std::cout << it->time << std::endl;
@@ -98,17 +98,9 @@ void Curve::sortControlPoints()
 //			--it;  
 //		}
 //	}
-	for(std::vector<CurvePoint>::iterator it = controlPoints.begin(); it <= controlPoints.end(); ++it) {
-		std::cout << it->time << std::endl;
-=======
-	//================DELETE THIS PART AND THEN START CODING===================
-	static bool flag = false;
-	if (!flag)
-	{
-		//std::cerr << "ERROR>>>>Member function sortControlPoints is not implemented!" << std::endl;
-		flag = true;
->>>>>>> 052a627bf3505774e955b54d564d5470c78f7047
-	}
+//	for(std::vector<CurvePoint>::iterator it = controlPoints.begin(); it <= controlPoints.end(); ++it) {
+//		std::cout << it->time << std::endl;
+//	}
 
 }
 
